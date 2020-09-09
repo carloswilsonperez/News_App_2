@@ -170,6 +170,7 @@ public class NewsAdapter extends ArrayAdapter<News> {
         // In Java code, you can refer to the colors that you defined in the colors.xml file using
         // the color resource ID
         // ToDO: add more section names
+        // ToDO: add README
         switch (sectionName) {
             case "GAMES":
                 magnitudeColorResourceId = R.color.magnitude1;
