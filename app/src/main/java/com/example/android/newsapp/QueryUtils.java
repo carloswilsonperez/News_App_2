@@ -1,4 +1,4 @@
-package com.example.android.myapplication2222222;
+package com.example.android.newsapp;
 
 
 import android.graphics.Bitmap;
@@ -136,7 +136,7 @@ public final class QueryUtils {
         return output.toString();
     }
 
-
+    // ToDo: add comment to methods
     private static List<News> extractFeatureFromJson2(String earthquakeJSON) {
         // If the JSON string is empty or null, then return early.
         if (TextUtils.isEmpty(earthquakeJSON)) {
@@ -193,7 +193,7 @@ public final class QueryUtils {
                 }
 
                 // Create News java object from magnitude, location, and time
-                News news2 = new News(sectionName, headline, contributor, webPublicationDate, webUrl, thumbnail);
+                News news2 = new News(sectionName, headline, contributor, webPublicationDate, webUrl, thumbnail, null);
                 // Add news to list of news
 
                 news.add(news2);
@@ -212,23 +212,30 @@ public final class QueryUtils {
     /**
      * Query the USGS dataset and return a list of {@link News} objects.
      */
-    public static Bitmap fetchImageData(String requestUrl) {
-        // Create URL object
-        URL url = createUrl(requestUrl);
+    public static Bitmap[] fetchImageData(String[] urls) {
+        int n = urls.length;
+        Bitmap[] bitmapNewsArray = new Bitmap[12];
 
-        // Perform HTTP request to the URL and receive a JSON response back
-        Bitmap jsonResponse = null;
-        try {
-            jsonResponse = makeHttpRequest2(url);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Problem making the HTTP request.", e);
+        for (int i = 0; i < n; i++) {
+            // Create URL object
+            URL url = createUrl(urls[i]);
+
+            // Perform HTTP request to the URL and receive a JSON response back
+            Bitmap bitmapNews = null;
+            try {
+                bitmapNews = makeHttpRequest2(url);
+                bitmapNewsArray[i] = bitmapNews;
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Problem making the HTTP request.", e);
+            }
         }
+
 
         // Extract relevant fields from the JSON response and create a list of {@link News}s
         // List<News> news = extractFeatureFromJson(jsonResponse);
 
         // Return the list of {@link News}s
-        return jsonResponse;
+        return bitmapNewsArray;
     }
 
 

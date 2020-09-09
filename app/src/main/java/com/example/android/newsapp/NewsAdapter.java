@@ -1,17 +1,11 @@
-package com.example.android.myapplication2222222;
+package com.example.android.newsapp;
 
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.Loader;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,16 +16,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import android.app.LoaderManager;
 
 
 public class NewsAdapter extends ArrayAdapter<News> {
@@ -75,7 +64,12 @@ public class NewsAdapter extends ArrayAdapter<News> {
         Button buttonViewMoreView = listItemView.findViewById(R.id.news_view_more);
 
         // Initial "Loading..." image
-        newsThumbnailView.setImageResource(R.drawable.loading);
+        Bitmap thumbnailBitmap = currentNews.getmThumbnailBitmap();
+        if (thumbnailBitmap == null) {
+            newsThumbnailView.setImageResource(R.drawable.loading);
+        } else {
+            newsThumbnailView.setImageBitmap(thumbnailBitmap);
+        }
 
         buttonViewMoreView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,8 +86,7 @@ public class NewsAdapter extends ArrayAdapter<News> {
             }
         });
 
-        new ImageDownloadTask(newsThumbnailView).execute(currentNews.getmThumbnail());
-
+        // ToDo: add letter to circle
         // Format the magnitude to show 1 decimal place
         // String formattedMagnitude = formatMagnitude(currentNews.getMagnitude());
         // Display the magnitude of the current earthquake in that TextView
@@ -105,8 +98,6 @@ public class NewsAdapter extends ArrayAdapter<News> {
         newsTitleView.setText(currentNews.getmWebTitle());
 
         // Create a new Date object from the time in milliseconds of the earthquake
-        // Date dateObject = new Date(1599506068);
-        Log.e(">>>>>>>>>>>>>>>", currentNews.getmWebPublicationDate());
         Date dateObject= null;
         String dtStart = currentNews.getmWebPublicationDate();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -218,51 +209,5 @@ public class NewsAdapter extends ArrayAdapter<News> {
         // You still need to convert the color resource ID into a color integer value
         return ContextCompat.getColor(getContext(), magnitudeColorResourceId);
     }
-
-
-    // ToDO: replace this with AsyncLoaderTask
-    // Defines the background task to download and then load the image within the ImageView
-    private class ImageDownloadTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView newsThumbnail;
-
-        public ImageDownloadTask(ImageView newsThumbnail) {
-            this.newsThumbnail = newsThumbnail;
-        }
-
-        protected Bitmap doInBackground(String... addresses) {
-            Bitmap bitmap = null;
-            InputStream in = null;
-            try {
-                // 1. Declare a URL Connection
-                URL url = new URL(addresses[0]);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                // 2. Open InputStream to connection
-                conn.connect();
-                in = conn.getInputStream();
-                // 3. Download and decode the bitmap using BitmapFactory
-                bitmap = BitmapFactory.decodeStream(in);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (in != null)
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        Log.e("TAG", "Exception while closing inputstream" + e);
-                    }
-            }
-
-            return bitmap;
-        }
-
-        // Fires after the task is completed, displaying the bitmap into the ImageView
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            // Set bitmap image for the result
-            newsThumbnail.setImageBitmap(result);
-        }
-    }
-
-
 }
 

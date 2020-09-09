@@ -39,7 +39,6 @@
 
     <color name="news_title">#000000</color>
 
-
     <!-- Text color for the primary location of the news in the list item -->
     <color name="textColorEarthquakeLocation">#2B3D4D</color>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.android.myapplication2222222;
+package com.example.android.newsapp;
 
 
 import android.content.AsyncTaskLoader;
