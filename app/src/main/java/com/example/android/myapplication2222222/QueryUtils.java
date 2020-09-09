@@ -1,6 +1,8 @@
 package com.example.android.myapplication2222222;
 
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -134,66 +136,7 @@ public final class QueryUtils {
         return output.toString();
     }
 
-    /**
-     * Return a list of {@link News} objects that has been built up from
-     * parsing the given JSON response.
-     */
-   /* private static List<News> extractFeatureFromJson(String earthquakeJSON) {
-        // If the JSON string is empty or null, then return early.
-        if (TextUtils.isEmpty(earthquakeJSON)) {
-            return null;
-        }
 
-        // Create an empty ArrayList that we can start adding news to
-        ArrayList<News> news = new ArrayList<>();
-
-        // Try to parse the SAMPLE_JSON_RESPONSE. If there's a problem with the way the JSON
-        // is formatted, a JSONException exception object will be thrown.
-        // Catch the exception so the app doesn't crash, and print the error message to the logs.
-        try {
-            // Parse the response given by the SAMPLE_JSON_RESPONSE string and
-            // build up a list of News objects with the corresponding data.
-
-            // Extract “features” JSONArray
-            JSONObject jsonBaseObject = new JSONObject(earthquakeJSON);
-            JSONArray features = jsonBaseObject.getJSONArray("features");
-
-            // Loop through each feature in the array
-            for (int i = 0; i < features.length(); i++) {
-                // Get news JSONObject at position i
-                JSONObject feature = features.getJSONObject(i);
-                // Get “properties” JSONObject
-                JSONObject properties = feature.getJSONObject("properties");
-
-                // Extract “mag” for magnitude
-                double magnitude = properties.getDouble("mag");
-
-                // Extract “place” for location
-                String location = properties.getString("place");
-
-                // Extract “time” for time
-                Long time = properties.getLong("time");
-
-                // Extract "url"
-                String url = properties.getString("url");
-
-                // Create News java object from magnitude, location, and time
-                News news2 = new News(magnitude, location, time, url);
-                // Add news to list of news
-
-                news.add(news2);
-            }
-        } catch (JSONException e) {
-            // If an error is thrown when executing any of the above statements in the "try" block,
-            // catch the exception here, so the app doesn't crash. Print a log message
-            // with the message from the exception.
-            Log.e("QueryUtils", "Problem parsing the earthquake JSON results", e);
-        }
-
-        // Return the list of news
-        return news;
-    }
-*/
     private static List<News> extractFeatureFromJson2(String earthquakeJSON) {
         // If the JSON string is empty or null, then return early.
         if (TextUtils.isEmpty(earthquakeJSON)) {
@@ -269,24 +212,50 @@ public final class QueryUtils {
     /**
      * Query the USGS dataset and return a list of {@link News} objects.
      */
-    public static List<News> fetchImageData(String requestUrl) {
+    public static Bitmap fetchImageData(String requestUrl) {
         // Create URL object
         URL url = createUrl(requestUrl);
 
         // Perform HTTP request to the URL and receive a JSON response back
-        String jsonResponse = null;
+        Bitmap jsonResponse = null;
         try {
-            jsonResponse = makeHttpRequest(url);
+            jsonResponse = makeHttpRequest2(url);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Problem making the HTTP request.", e);
         }
 
         // Extract relevant fields from the JSON response and create a list of {@link News}s
         // List<News> news = extractFeatureFromJson(jsonResponse);
-        List<News> news = extractFeatureFromJson2(jsonResponse);
 
         // Return the list of {@link News}s
-        return news;
+        return jsonResponse;
+    }
+
+
+    private static Bitmap makeHttpRequest2(URL url) throws IOException {
+        Bitmap bitmap = null;
+        InputStream in = null;
+        try {
+            // 1. Declare a URL Connection
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            // 2. Open InputStream to connection
+            conn.connect();
+            in = conn.getInputStream();
+            // 3. Download and decode the bitmap using BitmapFactory
+            bitmap = BitmapFactory.decodeStream(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (in != null)
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    Log.e("TAG", "Exception while closing inputstream" + e);
+                }
+        }
+        Log.e(LOG_TAG, "JSON response: ++++++++++++++++++++++++");
+        return bitmap;
+
     }
 
 

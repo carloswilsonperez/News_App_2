@@ -34,7 +34,7 @@ import java.util.List;
 import android.app.LoaderManager;
 
 
-public class NewsAdapter extends ArrayAdapter<News> implements LoaderManager.LoaderCallbacks<Bitmap> {
+public class NewsAdapter extends ArrayAdapter<News> {
     private Context mContext;
 
     /**
@@ -217,22 +217,6 @@ public class NewsAdapter extends ArrayAdapter<News> implements LoaderManager.Loa
 
         // You still need to convert the color resource ID into a color integer value
         return ContextCompat.getColor(getContext(), magnitudeColorResourceId);
-    }
-
-    @NonNull
-    @Override
-    public Loader<Bitmap> onCreateLoader(int id, @Nullable Bundle args) {
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<Bitmap> loader, Bitmap data) {
-
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull Loader<Bitmap> loader) {
-
     }
 
 
