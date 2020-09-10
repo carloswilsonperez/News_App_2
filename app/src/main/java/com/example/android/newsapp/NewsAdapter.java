@@ -54,7 +54,7 @@ public class NewsAdapter extends ArrayAdapter<News> {
         News currentNews = getItem(position);
 
         // Find the child text views by ID
-        TextView newsCategoryView = listItemView.findViewById(R.id.news_category_id);
+        TextView newsCategoryView = listItemView.findViewById(R.id.news_category_circle);
         TextView offsetLocationView = listItemView.findViewById(R.id.news_category);
         TextView primaryLocationView = listItemView.findViewById(R.id.news_contributor);
         TextView newsTitleView = listItemView.findViewById(R.id.news_title);
@@ -116,7 +116,7 @@ public class NewsAdapter extends ArrayAdapter<News> {
         GradientDrawable categoryNewsCircle = (GradientDrawable) newsCategoryView.getBackground();
 
         // Get the appropriate background color based on the category of the news item
-        int categoryNewsColor = getMagnitudeColor(currentNews.getSectionName());
+        int categoryNewsColor = getMagnitudeColor();
 
         // Set the color on the  circle
         categoryNewsCircle.setColor(categoryNewsColor);
@@ -142,51 +142,10 @@ public class NewsAdapter extends ArrayAdapter<News> {
     }
 
     /**
-     * Return the correct color for the given magnitude
-     * from a decimal magnitude value.
+     * Return the correct color for the categories circle
      */
-    private int getMagnitudeColor(String sectionName) {
-        int magnitudeColorResourceId;
-
-        // In Java code, you can refer to the colors that you defined in the colors.xml file using
-        // the color resource ID
-        // ToDO: add more section names
-        // ToDO: add README
-        switch (sectionName) {
-            case "GAMES":
-                magnitudeColorResourceId = R.color.magnitude1;
-                break;
-            case "TECHNOLOGY":
-                magnitudeColorResourceId = R.color.magnitude1;
-                break;
-            case "TRAVEL":
-                magnitudeColorResourceId = R.color.magnitude2;
-                break;
-            case "GAMES2":
-                magnitudeColorResourceId = R.color.magnitude3;
-                break;
-            case "US news2":
-                magnitudeColorResourceId = R.color.magnitude4;
-                break;
-            case "US news3":
-                magnitudeColorResourceId = R.color.magnitude5;
-                break;
-            case "US news4":
-                magnitudeColorResourceId = R.color.magnitude6;
-                break;
-            case "US news5":
-                magnitudeColorResourceId = R.color.magnitude7;
-                break;
-            case "US news6":
-                magnitudeColorResourceId = R.color.magnitude8;
-                break;
-            case "US news7":
-                magnitudeColorResourceId = R.color.magnitude9;
-                break;
-            default:
-                magnitudeColorResourceId = R.color.magnitude10plus;
-                break;
-        }
+    private int getMagnitudeColor() {
+        int magnitudeColorResourceId = R.color.circle_color;
 
         // You still need to convert the color resource ID into a color integer value
         return ContextCompat.getColor(getContext(), magnitudeColorResourceId);

@@ -20,7 +20,7 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/news_category_id"
+            android:id="@+id/news_category_circle"
             android:layout_width="@dimen/category_circle_size"
             android:layout_height="@dimen/category_circle_size"
             android:layout_gravity="center_vertical"
@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:textColor="@color/textColorNewsLocation"
+                android:textColor="@color/color_contributor"
                 android:textSize="@dimen/contributor_text_size" />
         </LinearLayout>
 
