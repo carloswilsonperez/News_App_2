@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper methods related to requesting and receiving earthquake data from USGS.
+ * Helper methods related to requesting and receiving news data from The Guardian API.
  */
 public final class QueryUtils {
 
@@ -38,9 +38,9 @@ public final class QueryUtils {
     }
 
     /**
-     * Query the USGS dataset and return a list of {@link News} objects.
+     * Query The Guardian API and return a list of {@link News} objects.
      */
-    public static List<News> fetchEarthquakeData(String requestUrl) {
+    public static List<News> fetchNewsData(String requestUrl) {
         // Create URL object
         URL url = createUrl(requestUrl);
 
@@ -54,7 +54,7 @@ public final class QueryUtils {
 
         // Extract relevant fields from the JSON response and create a list of {@link News}s
         // List<News> news = extractFeatureFromJson(jsonResponse);
-        List<News> news = extractFeatureFromJson2(jsonResponse);
+        List<News> news = extractFeatureFromJson(jsonResponse);
 
         // Return the list of {@link News}s
         return news;
@@ -102,7 +102,7 @@ public final class QueryUtils {
                 Log.e(LOG_TAG, "Error response code: " + urlConnection.getResponseCode());
             }
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Problem retrieving the earthquake JSON results.", e);
+            Log.e(LOG_TAG, "Problem retrieving the news item JSON results.", e);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -114,7 +114,6 @@ public final class QueryUtils {
                 inputStream.close();
             }
         }
-        Log.e(LOG_TAG, "JSON response: >>>>>>>>>>>>>>>>>>>>>>>>>" + jsonResponse);
         return jsonResponse;
     }
 
@@ -136,10 +135,12 @@ public final class QueryUtils {
         return output.toString();
     }
 
-    // ToDo: add comment to methods
-    private static List<News> extractFeatureFromJson2(String earthquakeJSON) {
+    /**
+     * Returns a list of news items
+     */
+    private static List<News> extractFeatureFromJson(String newsJSON) {
         // If the JSON string is empty or null, then return early.
-        if (TextUtils.isEmpty(earthquakeJSON)) {
+        if (TextUtils.isEmpty(newsJSON)) {
             return null;
         }
 
@@ -153,8 +154,8 @@ public final class QueryUtils {
             // Parse the response given by the SAMPLE_JSON_RESPONSE string and
             // build up a list of News objects with the corresponding data.
 
-            // Extract “features” JSONArray
-            JSONObject jsonBaseObject = new JSONObject(earthquakeJSON);
+            // Extract “results” JSONArray
+            JSONObject jsonBaseObject = new JSONObject(newsJSON);
             JSONObject responseJSON = jsonBaseObject.getJSONObject("response");
             JSONArray featuresJSONArray = responseJSON.getJSONArray("results");
 
@@ -163,24 +164,22 @@ public final class QueryUtils {
                 // Get news JSONObject at position i
                 JSONObject feature = featuresJSONArray.getJSONObject(i);
 
-                // Extract “place” for location
+                // Extract “sectionName” of news item
                 String sectionName = feature.getString("sectionName");
 
-                // Extract “place” for location
+                // Extract “webPublicationDate” of news item
                 String webPublicationDate = feature.getString("webPublicationDate");
 
-                // Extract “place” for location
+                // Extract “webTitle” of news item
                 String webTitle = feature.getString("webTitle");
 
-                // Extract “place” for location
+                // Extract “webUrl” of news item
                 String webUrl = feature.getString("webUrl");
 
+                // Extract "fields" values of news item
                 JSONObject fieldsJSON = feature.getJSONObject("fields");
 
-                // Extract “place” for location
-                String headline = fieldsJSON.getString("headline");
-
-                // Extract “place” for location
+                // Extract “thumbnaila” for news item
                 String thumbnail = fieldsJSON.getString("thumbnail");
 
                 JSONArray tagsJSONArray = feature.getJSONArray("tags");
@@ -188,21 +187,21 @@ public final class QueryUtils {
                 String contributor = "UNAVAILABLE";
                 if (tagsJSONArray.length() > 0) {
                     tag = tagsJSONArray.getJSONObject(0);
-                    // Extract “place” for location
+                    // Extract “webTitle” of news item
                     contributor = tag.getString("webTitle");
                 }
 
-                // Create News java object from magnitude, location, and time
-                News news2 = new News(sectionName, headline, contributor, webPublicationDate, webUrl, thumbnail, null);
-                // Add news to list of news
+                // Create News java object
+                News news2 = new News(sectionName, webTitle, contributor, webPublicationDate, webUrl, thumbnail, null);
 
+                // Add news to list of news
                 news.add(news2);
             }
         } catch (JSONException e) {
             // If an error is thrown when executing any of the above statements in the "try" block,
             // catch the exception here, so the app doesn't crash. Print a log message
             // with the message from the exception.
-            Log.e("QueryUtils", "Problem parsing the earthquake JSON results", e);
+            Log.e(LOG_TAG, "Problem parsing the news JSON results", e);
         }
 
         // Return the list of news
@@ -210,7 +209,7 @@ public final class QueryUtils {
     }
 
     /**
-     * Query the USGS dataset and return a list of {@link News} objects.
+     * Returns an array of Bitmap objects for the news items.
      */
     public static Bitmap[] fetchImageData(String[] urls) {
         int n = urls.length;
@@ -223,32 +222,30 @@ public final class QueryUtils {
             // Perform HTTP request to the URL and receive a JSON response back
             Bitmap bitmapNews = null;
             try {
-                bitmapNews = makeHttpRequest2(url);
+                bitmapNews = makeHttpRequestForBitmap(url);
                 bitmapNewsArray[i] = bitmapNews;
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Problem making the HTTP request.", e);
             }
         }
 
-
-        // Extract relevant fields from the JSON response and create a list of {@link News}s
-        // List<News> news = extractFeatureFromJson(jsonResponse);
-
-        // Return the list of {@link News}s
+        // Return the array of {@link Bitmap}s
         return bitmapNewsArray;
     }
 
 
-    private static Bitmap makeHttpRequest2(URL url) throws IOException {
+    /**
+     * Makes HTTP response to get a Bitmap object
+     */
+    private static Bitmap makeHttpRequestForBitmap(URL url) throws IOException {
         Bitmap bitmap = null;
         InputStream in = null;
         try {
-            // 1. Declare a URL Connection
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            // 2. Open InputStream to connection
             conn.connect();
             in = conn.getInputStream();
-            // 3. Download and decode the bitmap using BitmapFactory
+
+            // Download and decode the bitmap using BitmapFactory
             bitmap = BitmapFactory.decodeStream(in);
         } catch (IOException e) {
             e.printStackTrace();
@@ -257,13 +254,10 @@ public final class QueryUtils {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    Log.e("TAG", "Exception while closing inputstream" + e);
+                    Log.e(LOG_TAG, "Exception while closing inputstream" + e);
                 }
         }
-        Log.e(LOG_TAG, "JSON response: ++++++++++++++++++++++++");
+
         return bitmap;
-
     }
-
-
 }

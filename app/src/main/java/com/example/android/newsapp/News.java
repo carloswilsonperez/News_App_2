@@ -32,35 +32,59 @@ public class News {
         mThumbnailBitmap = thumbnailBitmap;
     }
 
-    public String getmSectionName() {
+    /**
+     * Getter for the mSectionName property
+     */
+    public String getSectionName() {
         return mSectionName;
     }
 
-    public String getmWebTitle() {
+    /**
+     * Getter for the mWebTitle property
+     */
+    public String getWebTitle() {
         return mWebTitle;
     }
 
-    public String getmContributor() {
+    /**
+     * Getter for the mContributor property
+     */
+    public String getContributor() {
         return mContributor;
     }
 
-    public String getmWebPublicationDate() {
+    /**
+     * Getter for the mWebPublicationDate property
+     */
+    public String getWebPublicationDate() {
         return mWebPublicationDate;
     }
 
-    public String getmWebUrl() {
+    /**
+     * Getter for the mWebUrl property
+     */
+    public String getWebUrl() {
         return mWebUrl;
     }
 
-    public String getmThumbnail() {
+    /**
+     * Getter for the mThumbnail property
+     */
+    public String getThumbnail() {
         return mThumbnail;
     }
 
-    public Bitmap getmThumbnailBitmap() {
+    /**
+     * Getter for the mThumbnailBitmap property
+     */
+    public Bitmap getThumbnailBitmap() {
         return mThumbnailBitmap;
     }
 
-    public void setmThumbnailBitmap(Bitmap bitmapNews) {
+    /**
+     * Setter for the mThumbnailBitmap property
+     */
+    public void setThumbnailBitmap(Bitmap bitmapNews) {
         mThumbnailBitmap = bitmapNews;
     }
 }

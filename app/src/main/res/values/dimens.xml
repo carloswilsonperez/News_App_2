@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Generic 16dp size -->
+    <dimen name="medium_size">16dp</dimen>
+
+    <!-- News item thumbnail size -->
+    <dimen name="thumbnail_size">150dp</dimen>
+
+    <!-- News item category circle size -->
+    <dimen name="category_circle_size">36dp</dimen>
+
+    <!-- News item category circle text size -->
+    <dimen name="category_circle_text_size">16sp</dimen>
+
+    <!-- News item generic text size -->
+    <dimen name="generic_text_size">12sp</dimen>
+
+    <!-- News item contributor text size -->
+    <dimen name="contributor_text_size">16sp</dimen>
+
+    <!-- News item title text size -->
+    <dimen name="title_text_size">18sp</dimen>
+</resources>

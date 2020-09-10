@@ -22,8 +22,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public static final String LOG_TAG = MainActivity.class.getName();
     List<News> mNews;
 
-    private static final int EARTHQUAKE_LOADER_ID = 1;
+    private static final int NEWS_LOADER_ID = 1;
     private static final int BITMAP_LOADER_ID = 2;
+    private static final int NUMBER_OF_NEWS_ITEMS = 12;
     SwipeRefreshLayout swipe;
 
     /**
@@ -47,22 +48,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        swipe = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        swipe = findViewById(R.id.swiperefresh);
         swipe.setOnRefreshListener(this);
         swipe.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
 
         // Find a reference to the {@link ListView} in the layout
-        ListView earthquakeListView = findViewById(R.id.list);
+        ListView newsListView = findViewById(R.id.list);
 
         mEmptyStateTextView = findViewById(R.id.empty_view);
-        earthquakeListView.setEmptyView(mEmptyStateTextView);
+        newsListView.setEmptyView(mEmptyStateTextView);
 
-        // Create a new adapter that takes an empty list of earthquakes as input
+        // Create a new adapter that takes an empty list of news items as input
         mAdapter = new NewsAdapter(this, new ArrayList<News>());
 
         // Set the adapter on the {@link ListView}
         // so the list can be populated in the user interface
-        earthquakeListView.setAdapter(mAdapter);
+        newsListView.setAdapter(mAdapter);
 
         // Get a reference to the ConnectivityManager to check state of network connectivity
         ConnectivityManager connMgr = (ConnectivityManager)
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             // Initialize the loader. Pass in the int ID constant defined above and pass in null for
             // the bundle. Pass in this activity for the LoaderCallbacks parameter (which is valid
             // because this activity implements the LoaderCallbacks interface).
-            loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
+            loaderManager.initLoader(NEWS_LOADER_ID, null, this);
 
         } else {
             // Otherwise, display error
@@ -99,13 +100,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public Loader onCreateLoader(int id, Bundle bundle) {
         // Create a new loader for the given URL
-        if (id == 1) {
+        if (id == NEWS_LOADER_ID) {
             return new NewsLoader(this, USGS_REQUEST_URL);
         } else {
             String[] urls = new String[12];
             // Get urls array from mNews
-            for (int i = 0; i < 12; i++) {
-                urls[i] = mNews.get(i).getmThumbnail();
+            for (int i = 0; i < NUMBER_OF_NEWS_ITEMS; i++) {
+                urls[i] = mNews.get(i).getThumbnail();
             }
 
             return new ImageLoader(this, urls);
@@ -113,11 +114,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     // Second, We need onLoadFinished(), where we'll do exactly what we did in onPostExecute(), and
-    // use the earthquake data to update our UI - by updating the dataset in the adapter.
+    // use the news data to update our UI - by updating the dataset in the adapter.
     @Override
     public void onLoadFinished(Loader loader, Object data) {
         int id = loader.getId();
-        if (id == 1) {
+        if (id == NEWS_LOADER_ID) {
             List<News> news = (List<News>) data;
             // Hide loading indicator because the data has been loaded
             View loadingIndicator = findViewById(R.id.loading_indicator);
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             // Set empty state text to display "No news found."
             mEmptyStateTextView.setText(R.string.no_news_found);
 
-            // Clear the adapter of previous earthquake data
+            // Clear the adapter of previous news data
             mAdapter.clear();
 
             // If there is a valid list of {@link News}s, then add them to the adapter's
@@ -142,8 +143,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             Bitmap[] result = (Bitmap[]) data;
 
             // Update the adapter with the new images
-            for (int i = 0; i < 12; i++) {
-                mNews.get(i).setmThumbnailBitmap(result[i]);
+            for (int i = 0; i < NUMBER_OF_NEWS_ITEMS; i++) {
+                mNews.get(i).setThumbnailBitmap(result[i]);
             }
             mAdapter.addAll(mNews);
             mAdapter.notifyDataSetChanged();
@@ -152,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     // Third, we need onLoaderReset(), we're being informed that the data from our loader is
     // no longer valid. This isn't actually a case that's going to come up with our simple loader,
-    // but the correct thing to do is to remove all the earthquake data from our UI by clearing out
+    // but the correct thing to do is to remove all the news data from our UI by clearing out
     // the adapter’s data set.
     @Override
     public void onLoaderReset(Loader loader) {
@@ -160,13 +161,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if (id == 1) {
             // Loader reset, so we can clear out our existing data.
             mAdapter.clear();
-        } else {
-
         }
     }
 
     @Override
     public void onRefresh() {
-        getLoaderManager().restartLoader(EARTHQUAKE_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(NEWS_LOADER_ID, null, this);
     }
 }

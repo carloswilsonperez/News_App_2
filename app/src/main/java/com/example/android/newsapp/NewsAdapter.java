@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,8 +36,8 @@ public class NewsAdapter extends ArrayAdapter<News> {
     }
 
     /**
-     * Returns a list item view that displays information about the earthquake at the given
-     * position in the list of earthquakes.
+     * Returns a list item view that displays information about the news item at the given
+     * position in the list of news items.
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -52,19 +50,21 @@ public class NewsAdapter extends ArrayAdapter<News> {
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.news_list_item, parent, false);
         }
 
-        // Find the earthquake at the given position in the list of earthquakes
+        // Find the news item at the given position in the news list
         News currentNews = getItem(position);
 
         // Find the child text views by ID
-        TextView magnitudeView = listItemView.findViewById(R.id.magnitude);
-        TextView offsetLocationView = listItemView.findViewById(R.id.location_offset);
-        TextView primaryLocationView = listItemView.findViewById(R.id.primary_location);
+        TextView newsCategoryView = listItemView.findViewById(R.id.news_category_id);
+        TextView offsetLocationView = listItemView.findViewById(R.id.news_category);
+        TextView primaryLocationView = listItemView.findViewById(R.id.news_contributor);
         TextView newsTitleView = listItemView.findViewById(R.id.news_title);
         ImageView newsThumbnailView = listItemView.findViewById(R.id.news_thumbnail);
         Button buttonViewMoreView = listItemView.findViewById(R.id.news_view_more);
+        TextView dateView = listItemView.findViewById(R.id.date);
+        TextView timeView = listItemView.findViewById(R.id.time);
 
         // Initial "Loading..." image
-        Bitmap thumbnailBitmap = currentNews.getmThumbnailBitmap();
+        Bitmap thumbnailBitmap = currentNews.getThumbnailBitmap();
         if (thumbnailBitmap == null) {
             newsThumbnailView.setImageResource(R.drawable.loading);
         } else {
@@ -74,32 +74,28 @@ public class NewsAdapter extends ArrayAdapter<News> {
         buttonViewMoreView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+            // Convert the String URL into a URI object (to pass into the Intent constructor)
+            Uri newsWebUrl = Uri.parse( getItem(mPosition).getWebUrl());
 
-                // Convert the String URL into a URI object (to pass into the Intent constructor)
-                Uri newsWebUrl = Uri.parse( getItem(mPosition).getmWebUrl());
+            // Create a new intent to view the news item URI
+            Intent websiteIntent = new Intent(Intent.ACTION_VIEW, newsWebUrl);
 
-                // Create a new intent to view the earthquake URI
-                Intent websiteIntent = new Intent(Intent.ACTION_VIEW, newsWebUrl);
-
-                // Send the intent to launch a new activity
-                mContext.startActivity(websiteIntent);
+            // Send the intent to launch a new activity
+            mContext.startActivity(websiteIntent);
             }
         });
 
-        // ToDo: add letter to circle
-        // Format the magnitude to show 1 decimal place
-        // String formattedMagnitude = formatMagnitude(currentNews.getMagnitude());
-        // Display the magnitude of the current earthquake in that TextView
-        // magnitudeView.setText(formattedMagnitude);
+        // Display the category of the current news item in that TextView
+        newsCategoryView.setText(String.valueOf(currentNews.getSectionName().charAt(0)));
 
         // Set the values for primary & offset locations
-        offsetLocationView.setText(currentNews.getmSectionName());
-        primaryLocationView.setText(currentNews.getmContributor());
-        newsTitleView.setText(currentNews.getmWebTitle());
+        offsetLocationView.setText(currentNews.getSectionName());
+        primaryLocationView.setText(currentNews.getContributor());
+        newsTitleView.setText(currentNews.getWebTitle());
 
-        // Create a new Date object from the time in milliseconds of the earthquake
+        // Format the webPublicationDate for the news item
         Date dateObject= null;
-        String dtStart = currentNews.getmWebPublicationDate();
+        String dtStart = currentNews.getWebPublicationDate();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         try {
             dateObject = format.parse(dtStart);
@@ -107,29 +103,23 @@ public class NewsAdapter extends ArrayAdapter<News> {
             e.printStackTrace();
         }
 
-        // Find the TextView with view ID date
-        TextView dateView = (TextView) listItemView.findViewById(R.id.date);
         // Format the date string (i.e. "Mar 3, 1984")
         String formattedDate = formatDate(dateObject);
-        // Display the date of the current earthquake in that TextView
         dateView.setText(formattedDate);
 
-        // Find the TextView with view ID time
-        TextView timeView = (TextView) listItemView.findViewById(R.id.time);
         // Format the time string (i.e. "4:30PM")
         String formattedTime = formatTime(dateObject);
-        // Display the time of the current earthquake in that TextView
         timeView.setText(formattedTime);
 
-        // Set the proper background color on the magnitude circle.
+        // Set the proper background color on the categoryNewsCircle circle.
         // Fetch the background from the TextView, which is a GradientDrawable.
-        GradientDrawable magnitudeCircle = (GradientDrawable) magnitudeView.getBackground();
+        GradientDrawable categoryNewsCircle = (GradientDrawable) newsCategoryView.getBackground();
 
-        // Get the appropriate background color based on the current earthquake magnitude
-        int magnitudeColor = getMagnitudeColor(currentNews.getmSectionName());
+        // Get the appropriate background color based on the category of the news item
+        int categoryNewsColor = getMagnitudeColor(currentNews.getSectionName());
 
-        // Set the color on the magnitude circle
-        magnitudeCircle.setColor(magnitudeColor);
+        // Set the color on the  circle
+        categoryNewsCircle.setColor(categoryNewsColor);
 
         // Return the list item view that is now showing the appropriate data
         return listItemView;
@@ -149,15 +139,6 @@ public class NewsAdapter extends ArrayAdapter<News> {
     private String formatTime(Date dateObject) {
         SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
         return timeFormat.format(dateObject);
-    }
-
-    /**
-     * Return the formatted magnitude string showing 1 decimal place (i.e. "3.2")
-     * from a decimal magnitude value.
-     */
-    private String formatMagnitude(double magnitude) {
-        DecimalFormat magnitudeFormat = new DecimalFormat("0.0");
-        return magnitudeFormat.format(magnitude);
     }
 
     /**
@@ -181,7 +162,7 @@ public class NewsAdapter extends ArrayAdapter<News> {
             case "TRAVEL":
                 magnitudeColorResourceId = R.color.magnitude2;
                 break;
-            case "US news":
+            case "GAMES2":
                 magnitudeColorResourceId = R.color.magnitude3;
                 break;
             case "US news2":
