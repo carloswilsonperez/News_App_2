@@ -14,19 +14,17 @@ public class NewsLoader extends AsyncTaskLoader<List<News>> {
 
     /** Tag for log messages */
     private static final String LOG_TAG = NewsLoader.class.getName();
-
-    /** Query URL */
-    private String mUrl;
+    private Context mContext;
 
     /**
      * Constructs a new {@link NewsLoader}.
      *
      * @param context of the activity
-     * @param url to load data from
      */
-    public NewsLoader(Context context, String url) {
+    public NewsLoader(Context context) {
+
         super(context);
-        mUrl = url;
+        mContext = context;
     }
 
     @Override
@@ -39,12 +37,8 @@ public class NewsLoader extends AsyncTaskLoader<List<News>> {
      */
     @Override
     public List<News> loadInBackground() {
-        if (mUrl == null) {
-            return null;
-        }
-
         // Perform the network request, parse the response, and extract a list of news.
-        List<News> news = QueryUtils.fetchNewsData(mUrl);
+        List<News> news = QueryUtils.fetchNewsData(mContext);
         return news;
     }
 }

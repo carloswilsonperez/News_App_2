@@ -86,7 +86,7 @@ public class NewsAdapter extends ArrayAdapter<News> {
         });
 
         // Display the category of the current news item in that TextView
-        newsCategoryView.setText(String.valueOf(currentNews.getSectionName().charAt(0)));
+        newsCategoryView.setText(currentNews.getSectionName());
 
         // Set the values for primary & offset locations
         offsetLocationView.setText(currentNews.getSectionName());

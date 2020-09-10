@@ -28,12 +28,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     SwipeRefreshLayout swipe;
 
     /**
-     * URL for The Guardian News API
-     */
-    private static final String USGS_REQUEST_URL =
-            "https://content.guardianapis.com/search?q=android&order-by=newest&show-tags=contributor&format=json&star-rating=5&page-size=12&show-fields=headline,thumbnail&show-tags=contributor&show-references=author&api-key=4065da3c-0bd0-41a2-9fc1-7cf1fd6fe178";
-
-    /**
      * Adapter for the list of news
      */
     private NewsAdapter mAdapter;
@@ -101,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public Loader onCreateLoader(int id, Bundle bundle) {
         // Create a new loader for the given URL
         if (id == NEWS_LOADER_ID) {
-            return new NewsLoader(this, USGS_REQUEST_URL);
+            return new NewsLoader(this);
         } else {
             String[] urls = new String[12];
             // Get urls array from mNews

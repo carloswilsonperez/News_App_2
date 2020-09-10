@@ -1,8 +1,10 @@
 package com.example.android.newsapp;
 
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -28,6 +30,7 @@ public final class QueryUtils {
 
     /** Tag for the log messages */
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
+    private static Context mContext;
 
     /**
      * Create a private constructor because no one should ever create a {@link QueryUtils} object.
@@ -38,35 +41,55 @@ public final class QueryUtils {
     }
 
     /**
-     * Query The Guardian API and return a list of {@link News} objects.
+     * Returns new URL string for the main API request (without thumbnails)
      */
-    public static List<News> fetchNewsData(String requestUrl) {
-        // Create URL object
-        URL url = createUrl(requestUrl);
-
-        // Perform HTTP request to the URL and receive a JSON response back
-        String jsonResponse = null;
-        try {
-            jsonResponse = makeHttpRequest(url);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Problem making the HTTP request.", e);
-        }
-
-        // Extract relevant fields from the JSON response and create a list of {@link News}s
-        // List<News> news = extractFeatureFromJson(jsonResponse);
-        List<News> news = extractFeatureFromJson(jsonResponse);
-
-        // Return the list of {@link News}s
-        return news;
+    static String createStringUrlForNewsQuery() {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme("https")
+                .encodedAuthority("content.guardianapis.com")
+                .appendPath("search")
+                .appendQueryParameter("q", "android")
+                .appendQueryParameter("order-by", "newest")
+                .appendQueryParameter("show-references", "author")
+                .appendQueryParameter("show-tags", "contributor")
+                .appendQueryParameter("tag", "technology/android")
+                .appendQueryParameter("format", "json")
+                .appendQueryParameter("star-rating", "5")
+                .appendQueryParameter("page-size", "12")
+                .appendQueryParameter("show-fields", "headline,thumbnail")
+                .appendQueryParameter("show-tags", "contributor")
+                .appendQueryParameter("show-references", "author")
+                .appendQueryParameter("api-key", "4065da3c-0bd0-41a2-9fc1-7cf1fd6fe178");
+        String urlString = builder.build().toString();
+        return urlString;
     }
 
     /**
      * Returns new URL object from the given string URL.
      */
-    private static URL createUrl(String stringUrl) {
+    private static URL createUrlForNewsQuery() {
         URL url = null;
+        String stringUrl = createStringUrlForNewsQuery();
         try {
             url = new URL(stringUrl);
+        } catch (MalformedURLException e) {
+            Log.e(LOG_TAG, "Problem building the URL ", e);
+        }
+        return url;
+    }
+
+    /**
+     * Returns new URL object from the given string URL.
+     */
+    private static URL createUrlForBitmapQuery(String stringUrl) {
+        URL url = null;
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme("http")
+                .encodedAuthority(stringUrl.substring(8)); // I am not including the https:// part
+        String urlString = builder.build().toString();
+
+        try {
+            url = new URL(urlString);
         } catch (MalformedURLException e) {
             Log.e(LOG_TAG, "Problem building the URL ", e);
         }
@@ -184,7 +207,7 @@ public final class QueryUtils {
 
                 JSONArray tagsJSONArray = feature.getJSONArray("tags");
                 JSONObject tag;
-                String contributor = "UNAVAILABLE";
+                String contributor = mContext.getResources().getString(R.string.unavailable_contributor);
                 if (tagsJSONArray.length() > 0) {
                     tag = tagsJSONArray.getJSONObject(0);
                     // Extract “webTitle” of news item
@@ -209,6 +232,30 @@ public final class QueryUtils {
     }
 
     /**
+     * Query The Guardian API and return a list of {@link News} objects.
+     */
+    public static List<News> fetchNewsData(Context context) {
+        // Create URL object
+        URL url = createUrlForNewsQuery();
+        mContext = context;
+
+        // Perform HTTP request to the URL and receive a JSON response back
+        String jsonResponse = null;
+        try {
+            jsonResponse = makeHttpRequest(url);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Problem making the HTTP request.", e);
+        }
+
+        // Extract relevant fields from the JSON response and create a list of {@link News}s
+        // List<News> news = extractFeatureFromJson(jsonResponse);
+        List<News> news = extractFeatureFromJson(jsonResponse);
+
+        // Return the list of {@link News}s
+        return news;
+    }
+
+    /**
      * Returns an array of Bitmap objects for the news items.
      */
     public static Bitmap[] fetchImageData(String[] urls) {
@@ -217,10 +264,10 @@ public final class QueryUtils {
 
         for (int i = 0; i < n; i++) {
             // Create URL object
-            URL url = createUrl(urls[i]);
+            URL url = createUrlForBitmapQuery(urls[i]);
 
             // Perform HTTP request to the URL and receive a JSON response back
-            Bitmap bitmapNews = null;
+            Bitmap bitmapNews;
             try {
                 bitmapNews = makeHttpRequestForBitmap(url);
                 bitmapNewsArray[i] = bitmapNews;

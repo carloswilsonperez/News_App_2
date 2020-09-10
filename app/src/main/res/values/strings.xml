@@ -9,4 +9,7 @@
 
     <!-- Read More string [CHAR LIMIT=20] -->
     <string name="read_more">Read more</string>
+
+    <!-- String for unavailable contributor [CHAR LIMIT=20] -->
+    <string name="unavailable_contributor">UNAVAILABLE</string>
 </resources>
